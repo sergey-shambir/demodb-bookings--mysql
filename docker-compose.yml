@@ -1,0 +1,19 @@
+version: '3.8'
+services:
+  aviation-mysql-db:
+    image: mysql:8.0.32
+    container_name: aviation-mysql-db
+    hostname: aviation-mysql-db
+    environment:
+      - MYSQL_ROOT_PASSWORD=123r
+      - MYSQL_USER=sandbox
+      - MYSQL_PASSWORD=123s
+      - MYSQL_DATABASE=bookings
+    volumes:
+      - $PWD/docker/config/mysql.conf.d:/etc/mysql/conf.d/:ro
+      - aviation-mysql-db:/var/lib/mysql
+    ports:
+      - "127.0.0.1:3306:3306"
+
+volumes:
+  aviation-mysql-db:

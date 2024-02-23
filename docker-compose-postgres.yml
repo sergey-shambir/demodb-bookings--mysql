@@ -1,0 +1,15 @@
+version: '3.8'
+services:
+  aviation-postgres-db:
+    container_name: aviation-postgres-db
+    image: postgres:15.5-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - '127.0.0.1:5432:5432'
+    volumes:
+      - aviation-postgres-db:/var/lib/postgresql/data
+
+volumes:
+  aviation-postgres-db:
