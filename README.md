@@ -3,7 +3,7 @@
 Демонстрационная база данных «Авиаперевозки» выпускается компанией [Postgres Pro](https://postgrespro.ru), разрабатывающей одноимённую российскую СУБД.
 
 - Исходная база данных распространяется под [лицензией PostgreSQL](https://www.postgresql.org/about/licence/)
-- Данная версия также распространяется под лицензией PostgreSQL
+- Данная версия распространяется под аналогичной пермиссивной лицензией MIT
 
 Страница базы данных (для PostgreSQL): https://postgrespro.ru/docs/postgrespro/10/demodb-bookings
 
