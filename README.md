@@ -7,11 +7,13 @@
 
 Страница базы данных (для PostgreSQL): https://postgrespro.ru/docs/postgrespro/10/demodb-bookings
 
-Данный репозиторий содержит версию СУБД для MySQL:
+Данный репозиторий содержит версию базы данных «Авиаперевозки» для MySQL версии 8.0 и выше:
 
 - Файл `data/mysql/aviation-mysql-schema.sql` содержит схему БД
 - Файл `data/mysql/aviation-mysql-data.sql` содержит дамп данных БД
 - Файл `data/mysql/aviation-mysql-drop-tables.sql` содержит команды DROP TABLE для этой БД, что может пригодиться для очистки неудачных попыток импорта
+
+Вы можете использовать docker-compose для экспериментов.
 
 # Импорт данных
 
@@ -46,6 +48,8 @@ mysql -usandbox -pВашПароль bookings <data/mysql/aviation-mysql-data.sq
 ```
 
 ## Вариант 2: с использованием docker-compose
+
+Вариант удобен для Linux.
 
 ```bash
 # Выполнять в отдельной консоли и не останавливать, т.к. запускает сервис MySQL:
