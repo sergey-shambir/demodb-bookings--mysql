@@ -21,7 +21,7 @@
 
 Для Windows вам потребуется распаковать GZIP-архив, что можно сделать с помощью Gzip for Windows: https://gnuwin32.sourceforge.net/packages/gzip.htm
 
-## Вариант 1: без docker-compose
+## Вариант 1: с помощью MySQL Workbench
 
 Создайте базу `bookings` и пользователя для неё (например, `sandbox`):
 
@@ -33,23 +33,16 @@ CREATE USER 'sandbox'@'localhost' IDENTIFIED BY 'Придумайте свой �
 GRANT ALL PRIVILEGES ON bookings.* TO 'sandbox'@'localhost';
 ```
 
-После чего можно импортировать схему и данные
+После чего можно импортировать схему и данные в MySQL Workbench:
 
-```bash
-# Распаковка архива с данными
-gunzip -c data/mysql/aviation-mysql-data.sql.gz >data/mysql/aviation-mysql-data.sql
+1. Открыть в MySQL Workbench файл `data/mysql/aviation-mysql-schema.sql`
+    - выполнить весь файл целиком
+2. Открыть в MySQL Workbench файл `data/mysql/aviation-mysql-data.sql`
+   - выполнить весь файл целиком
 
-# Импорт схемы
-mysql -usandbox -pВашПароль bookings <data/mysql/aviation-mysql-schema.sql
+Если с первого раза не получилось, вы можете очистить состояние базы данных командами из файла `data/mysql/aviation-mysql-drop-tables.sql`
 
-# Импорт данных
-mysql -usandbox -pВашПароль bookings <data/mysql/aviation-mysql-data.sql
-
-```
-
-## Вариант 2: с использованием docker-compose
-
-Вариант удобен для Linux.
+## Вариант 2: в Linux с использованием docker-compose
 
 ```bash
 # Выполнять в отдельной консоли и не останавливать, т.к. запускает сервис MySQL:
@@ -61,6 +54,31 @@ docker exec -i aviation-mysql-db mysql -usandbox -p123s bookings <data/mysql/avi
 # Импортировать данные базы данных в MySQL
 gunzip -c data/mysql/aviation-mysql-data.sql.gz | docker exec -i aviation-mysql-db mysql -usandbox -p123s bookings && echo OK
 
+```
+
+## Вариант 3: в Linux или MacOSX с помощью консоли
+
+Создайте базу `bookings` и пользователя для неё (например, `sandbox`):
+
+```sql
+CREATE DATABASE bookings CHARACTER SET = utf8mb4;
+
+CREATE USER 'sandbox'@'localhost' IDENTIFIED BY 'Придумайте свой пароль';
+
+GRANT ALL PRIVILEGES ON bookings.* TO 'sandbox'@'localhost';
+```
+
+Затем выполните в терминале в каталоге проекта:
+
+```bash
+# Распаковка архива с данными
+gunzip -c data/mysql/aviation-mysql-data.sql.gz >data/mysql/aviation-mysql-data.sql
+
+# Импорт схемы
+mysql -usandbox -pВашПароль bookings <data/mysql/aviation-mysql-schema.sql
+
+# Импорт данных
+mysql -usandbox -pВашПароль bookings <data/mysql/aviation-mysql-data.sql
 ```
 
 # Технические нюансы
