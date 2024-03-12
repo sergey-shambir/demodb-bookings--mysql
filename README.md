@@ -9,9 +9,9 @@
 
 Данный репозиторий содержит версию базы данных «Авиаперевозки» для MySQL версии 8.0 и выше:
 
-- Файл `data/mysql/aviation-mysql-schema.sql` содержит схему БД
-- Файл `data/mysql/aviation-mysql-data.sql` содержит дамп данных БД
-- Файл `data/mysql/aviation-mysql-drop-tables.sql` содержит команды DROP TABLE для этой БД, что может пригодиться для очистки неудачных попыток импорта
+- Файл `data/mysql/bookings-mysql-schema.sql` содержит схему БД
+- Файл `data/mysql/bookings-mysql-data.sql` содержит дамп данных БД
+- Файл `data/mysql/bookings-mysql-drop-tables.sql` содержит команды DROP TABLE для этой БД, что может пригодиться для очистки неудачных попыток импорта
 
 Вы можете использовать docker-compose для экспериментов.
 
@@ -35,12 +35,12 @@ GRANT ALL PRIVILEGES ON bookings.* TO 'sandbox'@'localhost';
 
 После чего можно импортировать схему и данные в MySQL Workbench:
 
-1. Открыть в MySQL Workbench файл `data/mysql/aviation-mysql-schema.sql`
+1. Открыть в MySQL Workbench файл `data/mysql/bookings-mysql-schema.sql`
     - выполнить весь файл целиком
-2. Открыть в MySQL Workbench файл `data/mysql/aviation-mysql-data.sql`
+2. Открыть в MySQL Workbench файл `data/mysql/bookings-mysql-data.sql`
    - выполнить весь файл целиком
 
-Если с первого раза не получилось, вы можете очистить состояние базы данных командами из файла `data/mysql/aviation-mysql-drop-tables.sql`
+Если с первого раза не получилось, вы можете очистить состояние базы данных командами из файла `data/mysql/bookings-mysql-drop-tables.sql`
 
 ## Вариант 2: в Linux с использованием docker-compose
 
@@ -49,10 +49,10 @@ GRANT ALL PRIVILEGES ON bookings.* TO 'sandbox'@'localhost';
 docker-compose up
 
 # Импортировать схему базы данных в MySQL
-docker exec -i aviation-mysql-db mysql -usandbox -p123s bookings <data/mysql/aviation-mysql-schema.sql
+docker exec -i bookings-mysql-db mysql -usandbox -p123s bookings <data/mysql/bookings-mysql-schema.sql
 
 # Импортировать данные базы данных в MySQL
-gunzip -c data/mysql/aviation-mysql-data.sql.gz | docker exec -i aviation-mysql-db mysql -usandbox -p123s bookings && echo OK
+gunzip -c data/mysql/bookings-mysql-data.sql.gz | docker exec -i bookings-mysql-db mysql -usandbox -p123s bookings && echo OK
 
 ```
 
@@ -72,13 +72,13 @@ GRANT ALL PRIVILEGES ON bookings.* TO 'sandbox'@'localhost';
 
 ```bash
 # Распаковка архива с данными
-gunzip -c data/mysql/aviation-mysql-data.sql.gz >data/mysql/aviation-mysql-data.sql
+gunzip -c data/mysql/bookings-mysql-data.sql.gz >data/mysql/bookings-mysql-data.sql
 
 # Импорт схемы
-mysql -usandbox -pВашПароль bookings <data/mysql/aviation-mysql-schema.sql
+mysql -usandbox -pВашПароль bookings <data/mysql/bookings-mysql-schema.sql
 
 # Импорт данных
-mysql -usandbox -pВашПароль bookings <data/mysql/aviation-mysql-data.sql
+mysql -usandbox -pВашПароль bookings <data/mysql/bookings-mysql-data.sql
 ```
 
 # Технические нюансы
@@ -86,7 +86,10 @@ mysql -usandbox -pВашПароль bookings <data/mysql/aviation-mysql-data.sq
 ## Отличия от оригинальной версии для PostgreSQL
 
 1. Представления (VIEW) и хранимые функции (FUNCTION) не переносились
-2. В таблице `ticket_flights` убран внешний ключ `(ticket_no, flight_id)`: в отличии от PostgreSQL, в MySQL не поддерживаются составные внешние ключи.
+2. В таблице `boarding_passes` убран внешний ключ `(ticket_no, flight_id)`, указывающий на таблицу `bookings`
+   - в отличии от PostgreSQL, в MySQL не поддерживаются составные внешние ключи.
+3. В таблице `airports_data` колонка `coordinates` имеет тип `VARCHAR(1000)` вместо `POINT`
+   - это недоработка
 
 ## Как был выполнен экспорт данных данных из PostgreSQL в MySQL
 
@@ -100,27 +103,27 @@ mysql -usandbox -pВашПароль bookings <data/mysql/aviation-mysql-data.sq
 docker-compose -f docker-compose-postgres.yml up
 
 # Импортировать базу данных в PostgreSQL
-docker exec -i aviation-postgres-db psql -U postgres <data/pg/demo-medium-20170815.sql
+docker exec -i bookings-postgres-db psql -U postgres <data/pg/demo-medium-20170815.sql
 
 # В консоли PostgreSQL выполнить:
 #   \c demo
 #   \dt
-docker exec -it aviation-postgres-db psql -U postgres
+docker exec -it bookings-postgres-db psql -U postgres
 
 # Экспортировать базу данных из PostgreSQL
-docker exec -i -e PGPASSWORD=postgres aviation-postgres-db pg_dump -U postgres --quote-all-identifiers --no-acl --no-owner --format p --data-only demo >data/pg/exported.sql
+docker exec -i -e PGPASSWORD=postgres bookings-postgres-db pg_dump -U postgres --quote-all-identifiers --no-acl --no-owner --format p --data-only demo >data/pg/exported.sql
 
-docker exec -i -e PGPASSWORD=postgres aviation-postgres-db pg_dump -U postgres --quote-all-identifiers --no-acl --no-owner --format p --schema-only demo >data/pg/exported-schema.sql
+docker exec -i -e PGPASSWORD=postgres bookings-postgres-db pg_dump -U postgres --quote-all-identifiers --no-acl --no-owner --format p --schema-only demo >data/pg/exported-schema.sql
 
 # Конвертировать дамп скриптом
-php scripts/pg2mysql_cli.php data/pg/exported.sql data/mysql/aviation-mysql-data.sql
+php scripts/pg2mysql_cli.php data/pg/exported.sql data/mysql/bookings-mysql-data.sql
 
 # Исправляем огрехи скрипта pg2mysql_cli.php
-sed -i 's/INSERT INTO `bookings"."\([a-z_][a-z_]*\)"`/INSERT INTO `\1`/g' data/mysql/aviation-mysql-data.sql
-sed -i 's/00+00/00/g' data/mysql/aviation-mysql-data.sql
+sed -i 's/INSERT INTO `bookings"."\([a-z_][a-z_]*\)"`/INSERT INTO `\1`/g' data/mysql/bookings-mysql-data.sql
+sed -i 's/00+00/00/g' data/mysql/bookings-mysql-data.sql
 
 # Архивируем данные с помощью GZIP
-gzip data/mysql/aviation-mysql-data.sql
+gzip data/mysql/bookings-mysql-data.sql
 
 docker-compose -f docker-compose-postgres.yml down
 ```

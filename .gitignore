@@ -1,4 +1,4 @@
-data/mysql/aviation-mysql-data.sql
+data/mysql/bookings-mysql-data.sql
 
 /data/pg/
 /.idea/
