@@ -11,9 +11,9 @@
 
 - Файл `data/mysql/bookings-mysql-schema.sql` содержит схему БД
 - Файл `data/mysql/bookings-mysql-data.sql` содержит дамп данных БД
-- Файл `data/mysql/bookings-mysql-drop-tables.sql` содержит команды DROP TABLE для этой БД, что может пригодиться для очистки неудачных попыток импорта
+- Файл `data/mysql/bookings-mysql-post-import.sql` содержит постобработку дампа данных
 
-Вы можете использовать docker-compose для экспериментов.
+Дополнительный файл `data/mysql/bookings-mysql-drop-tables.sql` содержит команды DROP TABLE для этой БД, что может пригодиться для очистки неудачных попыток импорта.
 
 # Импорт данных
 
@@ -38,7 +38,9 @@ GRANT ALL PRIVILEGES ON bookings.* TO 'sandbox'@'localhost';
 1. Открыть в MySQL Workbench файл `data/mysql/bookings-mysql-schema.sql`
     - выполнить весь файл целиком
 2. Открыть в MySQL Workbench файл `data/mysql/bookings-mysql-data.sql`
-   - выполнить весь файл целиком
+    - выполнить весь файл целиком
+2. Открыть в MySQL Workbench файл `data/mysql/bookings-mysql-post-import.sql`
+    - выполнить весь файл целиком
 
 Если с первого раза не получилось, вы можете очистить состояние базы данных командами из файла `data/mysql/bookings-mysql-drop-tables.sql`
 
@@ -53,6 +55,9 @@ docker exec -i bookings-mysql-db mysql -usandbox -p123s bookings <data/mysql/boo
 
 # Импортировать данные базы данных в MySQL
 gunzip -c data/mysql/bookings-mysql-data.sql.gz | docker exec -i bookings-mysql-db mysql -usandbox -p123s bookings && echo OK
+
+# Выполнить SQL скрипт после импорта данных
+docker exec -i bookings-mysql-db mysql -usandbox -p123s bookings <data/mysql/bookings-mysql-post-import.sql
 
 ```
 
@@ -79,6 +84,10 @@ mysql -usandbox -pВашПароль bookings <data/mysql/bookings-mysql-schema.
 
 # Импорт данных
 mysql -usandbox -pВашПароль bookings <data/mysql/bookings-mysql-data.sql
+
+# Пост-обработка
+mysql -usandbox -pВашПароль bookings <data/mysql/bookings-mysql-post-imports.sql
+
 ```
 
 # Технические нюансы
@@ -87,11 +96,11 @@ mysql -usandbox -pВашПароль bookings <data/mysql/bookings-mysql-data.sq
 
 1. Представления (VIEW) и хранимые функции (FUNCTION) не переносились
 2. В таблице `boarding_passes` убран внешний ключ `(ticket_no, flight_id)`, указывающий на таблицу `bookings`
-   - в отличии от PostgreSQL, в MySQL не поддерживаются составные внешние ключи.
-3. В таблице `airports_data` колонка `coordinates` имеет тип `VARCHAR(1000)` вместо `POINT`
-   - это недоработка
+    - в отличии от PostgreSQL, в MySQL не поддерживаются составные внешние ключи.
 
 ## Как был выполнен экспорт данных данных из PostgreSQL в MySQL
+
+> Схема написана вручную. Данные экспортированы автоматизированным способом.
 
 Последовательность шагов в Linux:
 
