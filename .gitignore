@@ -1,4 +1,5 @@
-data/mysql/bookings-mysql-data.sql
+/data/mysql/bookings-mysql-data.sql
+/docker-compose.override.yml
 
 /data/pg/
 /.idea/

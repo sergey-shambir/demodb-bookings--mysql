@@ -39,7 +39,7 @@ GRANT ALL PRIVILEGES ON bookings.* TO 'sandbox'@'localhost';
     - выполнить весь файл целиком
 2. Открыть в MySQL Workbench файл `data/mysql/bookings-mysql-data.sql`
     - выполнить весь файл целиком
-2. Открыть в MySQL Workbench файл `data/mysql/bookings-mysql-post-import.sql`
+3. Открыть в MySQL Workbench файл `data/mysql/bookings-mysql-post-import.sql`
     - выполнить весь файл целиком
 
 Если с первого раза не получилось, вы можете очистить состояние базы данных командами из файла `data/mysql/bookings-mysql-drop-tables.sql`
